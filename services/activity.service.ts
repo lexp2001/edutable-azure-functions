@@ -1,5 +1,6 @@
 import { Context } from '@azure/functions'
 import { createConnection } from '../shared/mongo'
+import * as Excel from "exceljs";
 
 async function getActivities({ req, res }: Context) {
     const { db, connection } = await createConnection()
@@ -64,4 +65,42 @@ async function deleteActivity(rut: string, { req, res }: Context) {
         })
 }
 
-export default { getActivities, createActivity, updateActivity, deleteActivity };
+// async function getExcel({ req, res }: Context) {
+//     const { db, connection } = await createConnection()
+// }
+
+interface User {
+    name: string;
+    rut: string;
+    company: string;
+    time: string;
+}
+
+const users: User[] = [
+    { "name": "Name 1", "rut": "Rut 1", "company": "Company 1", "time": "Time 1" },
+    { "name": "Name 2", "rut": "Rut 2", "company": "Company 2", "time": "Time 2" },
+    { "name": "Name 3", "rut": "Rut 3", "company": "Company 3", "time": "Time 3" }
+]
+
+async function generateExcel({ req, res }: Context) {
+    const workbook = new Excel.Workbook();
+    const worksheet = workbook.addWorksheet('Users Data');
+    [{ header: 'Name', key: 'name', width: 20 },
+    { header: 'Rut', key: 'rut', width: 10 },
+    { header: 'Company', key: 'company', width: 10 },
+    { header: 'Time', key: 'time', width: 10 },
+        // { header: 'Product Totals', key: 'productTotals', width: 12 },
+    ];
+    users.forEach((data, index) => {
+        worksheet.addRow({
+            ...data,
+        });
+    });
+
+    // await workbook.xlsx.writeFile('user-data.xlsx');
+
+    res.status(200).json({ "resp": "ok" })
+
+}
+
+export default { getActivities, createActivity, updateActivity, deleteActivity, generateExcel };
