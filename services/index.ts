@@ -1,3 +1,4 @@
 import activityService from "./activity.service";
+import metricService from "./metric.service";
 
-export { activityService };
+export { activityService, metricService };

@@ -1,6 +1,7 @@
 import { Context } from '@azure/functions'
 import { createConnection } from '../shared/mongo'
 import * as Excel from "exceljs";
+import fs = require("fs");
 
 async function getActivities({ req, res }: Context) {
     const { db, connection } = await createConnection()
@@ -82,6 +83,8 @@ const users: User[] = [
     { "name": "Name 3", "rut": "Rut 3", "company": "Company 3", "time": "Time 3" }
 ]
 
+const url = "sebhastian.com/img/default.png";
+
 async function generateExcel({ req, res }: Context) {
     const workbook = new Excel.Workbook();
     const worksheet = workbook.addWorksheet('Users Data');
@@ -99,8 +102,16 @@ async function generateExcel({ req, res }: Context) {
 
     // await workbook.xlsx.writeFile('user-data.xlsx');
 
-    res.status(200).json({ "resp": "ok" })
+    // res.status(200).json({ "resp": "ok" })
+    const path = "downloaded-image.png";
+    const writeStream = fs.createWriteStream(path);
 
+    res.pipe(writeStream);
+
+    writeStream.on("finish", () => {
+        writeStream.close();
+        console.log("Download Completed");
+    });
 }
 
 export default { getActivities, createActivity, updateActivity, deleteActivity, generateExcel };
